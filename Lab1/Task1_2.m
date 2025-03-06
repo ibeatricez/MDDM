@@ -11,9 +11,6 @@ fs = 100;          % Sampling frequency in Hz
 % Fundamental frequency in rad/s
 omega1 = 2 * pi * fs / N;
 
-% Display result
-disp(['Fundamental frequency ω1 = ', num2str(omega1), ' rad/s']);
-
 k = 0:N-1;
 omega = (2 * pi / (N * (1/fs))) * k;
 disp(['Check ω1 = ', num2str(omega(2)), ' rad/s']);

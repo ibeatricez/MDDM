@@ -53,3 +53,7 @@ title('DFT Phase of Cosine');
 
 disp(['Cosine frequency: ', num2str(f_cos), ' Hz']);
 disp(['Detected peak at bin: ', num2str(peak_bin), ' corresponding to frequency: ', num2str(f(peak_bin)), ' Hz']);
+
+% 3 periods fit perfectly into 100 samples, so no leakage.
+% The DFT should show two peaks, one at +f and one at -f (or conjugate symmetric mirror).
+% The phase will match the randomly chosen phase.

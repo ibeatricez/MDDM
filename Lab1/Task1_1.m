@@ -1,7 +1,7 @@
 % DTF(Discrete Time Fourier) converts a signal from the time domain into the frequency domain.
 % This allows us to see which frequencies are present in the signal and with what amplitudes.
 % The inverse DFT (iDFT), which reconstructs the time signal from the frequency domain
-% Frequency Axis - Task 1.1
+% Frequency Axis - Task 1.1.1: This task asks us to compute the complete frequency axis for all DFT bins.
 
 % Parameters
 N = 10;          % Number of samples
@@ -24,3 +24,5 @@ xlabel('Frequency bin k');
 ylabel('\omega_k (rad/s)');
 title('Frequency axis in rad/s');
 grid on;
+
+% The result: a vector omega with N values, covering frequencies from 0 rad/s up to almost the Nyquist frequency

@@ -1,0 +1,83 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\title{Tradeoff in FRF: Understanding Trade-offs in Frequency Response Function Measurement}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Objective}
+This exercise aims to help you understand the typical trade-offs that can be made when measuring Frequency Response Functions (FRFs). This is a self-study exercise that will not be graded, but you can expect a related question on this topic during the exam on theory.
+
+\section*{Background}
+When measuring the FRF of a system, three critical criteria come into play:
+\begin{enumerate}
+    \item The \textbf{frequency resolution} of the excitation signal.
+    \item The \textbf{measurement time}.
+    \item The \textbf{Signal-to-Noise Ratio (SNR)}.
+\end{enumerate}
+
+As explained in Section 4.5.3 of the lecture notes, there exists a fundamental trade-off between these three criteria. This trade-off implies that if one criterion is kept constant, a second criterion can be improved at the cost of making the third criterion worse. 
+
+This trade-off analysis assumes:
+\begin{itemize}
+    \item The RMS (Root-Mean-Square) value of the excitation signal is fixed.
+    \item The frequency band of interest is fixed.
+\end{itemize}
+
+\section*{Assignment Description}
+Your task is to \textbf{conceptually design multisine excitations} that illustrate each trade-off. Specifically, you will design two different multisines for each of the following cases:
+
+\subsection*{Trade-off 1: Fixed Frequency Resolution}
+\begin{itemize}
+    \item Fix the frequency resolution, for example, by exciting 30 frequency lines within the band [5, 10] Hz.
+    \item Set the RMS value of the excitation signal to 1V.
+\end{itemize}
+\subsubsection*{Multisine 1}
+Design a multisine with an appropriate period (e.g., 6 seconds) and explicitly specify which 30 frequencies are excited. This satisfies the requirement for fixed resolution.
+\subsubsection*{Multisine 2}
+Design another multisine with the same fixed resolution, but optimize it to improve the SNR. To achieve this, you will need to increase the measurement time (i.e., make the period longer). Explain how the improved SNR and increased time are related.
+
+\subsection*{Trade-off 2: Fixed Measurement Time}
+\begin{itemize}
+    \item Fix the total measurement time (for example, 6 seconds).
+    \item Set the RMS value of the excitation signal to 1V.
+\end{itemize}
+\subsubsection*{Multisine 1}
+Design a multisine that fits 30 frequency lines within [5, 10] Hz, corresponding to the fixed measurement time.
+\subsubsection*{Multisine 2}
+Design another multisine with the same measurement time, but this time improve the frequency resolution (increasing the number of frequency lines) at the cost of reduced SNR. Explain the mechanism behind this trade-off.
+
+\subsection*{Trade-off 3: Fixed SNR}
+\begin{itemize}
+    \item Fix the SNR (e.g., by setting the total power in the excited frequencies to a fixed value).
+    \item Set the RMS value of the excitation signal to 1V.
+\end{itemize}
+\subsubsection*{Multisine 1}
+Design a multisine with 30 frequency lines within [5, 10] Hz, achieving the desired SNR.
+\subsubsection*{Multisine 2}
+Design a second multisine with the same SNR but improve the frequency resolution (more frequency lines) by increasing the measurement time. Explain how this trade-off works and why more frequency lines (finer resolution) requires a longer measurement.
+
+\section*{Summary of Required Deliverables}
+\begin{enumerate}
+    \item Conceptual design of 6 multisines (2 for each trade-off).
+    \item Explanation of how each trade-off works and the physical reasons behind them.
+    \item Clear specification of:
+    \begin{itemize}
+        \item Frequency band and excited lines.
+        \item Measurement time.
+        \item Expected SNR.
+    \end{itemize}
+\end{enumerate}
+
+\section*{Feedback Process}
+You can submit this assignment as a PDF file if you have doubts about any part of the work. You may also ask questions about this assignment during the upcoming lecture.
+
+\section*{Reference}
+For further guidance, watch the knowledge clip on Panopto titled:
+\emph{``Excitation signals - trade-offs''}.
+
+\end{document}

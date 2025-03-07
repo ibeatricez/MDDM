@@ -84,6 +84,9 @@ The first two rows represent cases where 30 equally spaced frequencies between 5
 \end{itemize}
 The longer duration reduces noise variance, improving the SNR. This can be seen from the cleaner peaks in the frequency spectrum of Row 2 compared to Row 1.
 
+\textbf{Physical Reason:} 
+The longer time window allows for more averaging, which reduces the variance of noise components. This means the signal peaks become sharper and more distinguishable from the noise floor in the frequency spectrum. This is a fundamental result of Fourier analysis — longer signals lead to **narrower frequency bins** and improved ability to separate signal from noise.
+
 \subsubsection*{Trade-off 2: Fixed Measurement Time}
 The third and fourth rows correspond to a fixed 6-second measurement duration.
 \begin{itemize}
@@ -92,6 +95,9 @@ The third and fourth rows correspond to a fixed 6-second measurement duration.
 \end{itemize}
 Since the total power (RMS fixed to 1V) must be spread over more frequencies in Row 4, the SNR per frequency decreases. This leads to less distinct peaks in the frequency domain.
 
+\textbf{Physical Reason:} 
+The fixed measurement time limits the total energy available in the excitation signal. As more frequency lines are excited (increased resolution), the available power per frequency component decreases. As a result, the peaks in the frequency spectrum become less pronounced relative to noise — this reduces the effective SNR per frequency line. This is a direct consequence of **energy spreading** across more frequencies.
+
 \subsubsection*{Trade-off 3: Fixed SNR}
 The fifth and sixth rows maintain a constant SNR.
 \begin{itemize}
@@ -99,59 +105,105 @@ The fifth and sixth rows maintain a constant SNR.
     \item Row 6 excites 60 frequencies, requiring the measurement duration to increase to 12 seconds to maintain SNR.
 \end{itemize}
 This illustrates that improving resolution (more lines) requires a proportional increase in measurement time to maintain SNR.
+\\
+\\
+\textbf{Physical Reason:} 
+If SNR is fixed, but resolution is increased (more frequencies excited), the only way to maintain the same SNR is to increase the measurement time. This allows the same level of noise averaging to occur for each frequency line. This highlights a fundamental fact: **higher resolution demands longer measurements if noise suppression (SNR) must be maintained**.
+
 
 \subsection*{Summary of Observations}
-This experiment confirms the fundamental triangle of FRF trade-offs:
+The experiments confirm the core trade-off triangle:
 \begin{itemize}
-    \item Increasing measurement time allows better SNR at constant resolution.
-    \item Increasing frequency resolution reduces SNR if time is fixed.
-    \item Maintaining SNR while increasing resolution requires longer measurement time.
+    \item Increasing measurement time improves SNR at constant resolution.
+    \item Increasing resolution reduces SNR if time is fixed.
+    \item Maintaining SNR while increasing resolution requires longer measurement times.
 \end{itemize}
-The ability to choose optimal parameters depends on the specific constraints of the experiment (available time, acceptable noise, required resolution).
+This triangular trade-off directly reflects the physics of spectral analysis and how energy spreads across time and frequency when the signal RMS is fixed.
 
+\subsection*{Conclusion}
+Understanding these physical mechanisms is essential for practical FRF measurements. We must carefully select the combination of resolution, time, and SNR to match the goals of a specific system identification experiment. This trade-off framework applies to many real-world scenarios, such as vibration testing, acoustic analysis, and electromagnetic characterization.
 \section*{MATLAB Code Implementation}
 The MATLAB code used to generate these results is included below:
 
 \lstset{language=Matlab, basicstyle=\ttfamily\small, breaklines=true}
 \begin{lstlisting}
-% Tradeoff in FRF Measurement - MATLAB Assignment
+% Trade-offs in FRF Measurement
 clc; clear; close all;
 
+% Global parameters
 fs = 100;            % Sampling frequency (Hz)
 RMS_des = 1;         % Desired RMS value
 f_start = 5;         % Start frequency (Hz)
 f_end = 10;          % End frequency (Hz)
 
-% Trade-off 1: Fixed Frequency Resolution
-N1 = fs * 6; % 6s
+% Tradeoff 1: Fixed Frequency Resolution
+% Multisine 1 - 30 lines, 6 seconds
+N1 = fs * 6;                          % 6 seconds worth of samples
 frequencies1 = linspace(f_start, f_end, 30);
 x1 = generate_multisine(N1, frequencies1, fs, RMS_des);
 
-N2 = fs * 12; % 12s
+% Multisine 2 - 30 lines, 12 seconds (better SNR)
+N2 = fs * 12;                         % 12 seconds worth of samples
 x2 = generate_multisine(N2, frequencies1, fs, RMS_des);
 
-% Trade-off 2: Fixed Measurement Time
-x3 = x1; % Same as Fixed Resolution 1
+% Tradeoff 2: Fixed Measurement Time
+% Multisine 3 - 30 lines, 6 seconds
+x3 = x1;  % Same as Multisine 1 (fixed time = same N)
+
+% Multisine 4 - 60 lines, 6 seconds (worse SNR, finer resolution)
 frequencies4 = linspace(f_start, f_end, 60);
 x4 = generate_multisine(N1, frequencies4, fs, RMS_des);
 
-% Trade-off 3: Fixed SNR
-x5 = x1;
+% Tradeoff 3: Fixed SNR
+% Multisine 5 - 30 lines, 6 seconds, fixed SNR
+x5 = x1;  % Same as Multisine 1 (same power spread over 30 lines)
+
+% Multisine 6 - 60 lines, 12 seconds (more frequencies, but maintain SNR by longer time)
 x6 = generate_multisine(N2, frequencies4, fs, RMS_des);
 
-% Function to generate multisine
+% Plot all results 
+multisines = {x1, x2, x3, x4, x5, x6};
+titles = {
+    "Fixed Resolution - 30 lines, 6s', ...
+    "Fixed Resolution - 30 lines, 12s (Better SNR)', ...
+    "Fixed Time - 30 lines, 6s', ...
+    "Fixed Time - 60 lines, 6s (Finer Resolution, Worse SNR)', ...
+    "Fixed SNR - 30 lines, 6s', ...
+    "Fixed SNR - 60 lines, 12s (More Lines, Longer Time)'
+};
+
+figure;
+for i = 1:6
+    subplot(6, 2, 2*i-1);
+    plot((0:length(multisines{i})-1)/fs, multisines{i});
+    xlabel('Time (s)');
+    ylabel('Amplitude');
+    title(titles{i});
+
+    subplot(6, 2, 2*i);
+    X = fft(multisines{i});
+    f = (0:length(X)-1) * (fs/length(X));
+    stem(f, abs(X), 'b', 'filled');
+    xlabel('Frequency (Hz)');
+    ylabel('|X(f)|');
+end
+
+disp('All multisines generated and plotted successfully.');
+
+%
 function x = generate_multisine(N, frequencies, fs, RMS_des)
-    t = (0:N-1) / fs;
-    x = zeros(1, N);
+    t = (0:N-1) / fs;  % Time vector
+    x = zeros(1, N);   % Initialize signal
+
     for f = frequencies
-        phase = 2*pi*rand();
+        phase = 2 * pi * rand();  % Random phase for each frequency
         x = x + cos(2*pi*f*t + phase);
     end
-    x = x * (RMS_des / rms(x));
+
+    % Scale to desired RMS
+    RMS_x = sqrt(mean(x.^2));
+    x = x * (RMS_des / RMS_x);
 end
+
 \end{lstlisting}
-
-\section*{Conclusion}
-This assignment provides a hands-on demonstration of how measurement time, frequency resolution, and SNR are interrelated in FRF measurements. The design of an optimal multisine excitation depends on the specific measurement goals whether the priority is fast measurement, high resolution, or high SNR. Understanding these trade-offs is essential for practical system identification and experimental design.
-
 \end{document}

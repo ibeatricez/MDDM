@@ -5,6 +5,7 @@
 \usepackage{booktabs}
 \usepackage{listings}
 \usepackage{hyperref}
+\usepackage{tikz}
 
 \title{Trade-offs in FRF Measurements}
 \author{}
@@ -85,7 +86,9 @@ The first two rows represent cases where 30 equally spaced frequencies between 5
 The longer duration reduces noise variance, improving the SNR. This can be seen from the cleaner peaks in the frequency spectrum of Row 2 compared to Row 1.
 
 \textbf{Physical Reason:} 
-The longer time window allows for more averaging, which reduces the variance of noise components. This means the signal peaks become sharper and more distinguishable from the noise floor in the frequency spectrum. This is a fundamental result of Fourier analysis — longer signals lead to **narrower frequency bins** and improved ability to separate signal from noise.
+A longer time window improves frequency resolution by creating narrower frequency bins, making it easier to distinguish closely spaced frequencies. It also enhances SNR by allowing more averaging, which reduces noise variation and makes signal peaks clearer. This leads to a more accurate and detailed frequency spectrum.
+
+Trade-off: Higher SNR → Longer measurement time, Shorter measurement time → Lower SNR.
 
 \subsubsection*{Trade-off 2: Fixed Measurement Time}
 The third and fourth rows correspond to a fixed 6-second measurement duration.
@@ -96,7 +99,9 @@ The third and fourth rows correspond to a fixed 6-second measurement duration.
 Since the total power (RMS fixed to 1V) must be spread over more frequencies in Row 4, the SNR per frequency decreases. This leads to less distinct peaks in the frequency domain.
 
 \textbf{Physical Reason:} 
-The fixed measurement time limits the total energy available in the excitation signal. As more frequency lines are excited (increased resolution), the available power per frequency component decreases. As a result, the peaks in the frequency spectrum become less pronounced relative to noise — this reduces the effective SNR per frequency line. This is a direct consequence of **energy spreading** across more frequencies.
+The fixed measurement time limits the total energy available in the excitation signal. As more frequency lines are excited (increased resolution), the available power per frequency component decreases. As a result, the peaks in the frequency spectrum become less pronounced relative to noise, this reduces the effective SNR per frequency line. This is a direct consequence of energy spreading across more frequencies. 
+
+Trade-off: Higher FR → Lower SNR, Lower FR → Higher SNR.
 
 \subsubsection*{Trade-off 3: Fixed SNR}
 The fifth and sixth rows maintain a constant SNR.
@@ -108,11 +113,28 @@ This illustrates that improving resolution (more lines) requires a proportional 
 \\
 \\
 \textbf{Physical Reason:} 
-If SNR is fixed, but resolution is increased (more frequencies excited), the only way to maintain the same SNR is to increase the measurement time. This allows the same level of noise averaging to occur for each frequency line. This highlights a fundamental fact: **higher resolution demands longer measurements if noise suppression (SNR) must be maintained**.
+If more frequencies are excited while keeping SNR constant, the measurement must last longer to allow enough noise averaging. This ensures each frequency gets sufficient energy and remains distinguishable from noise. Higher resolution needs longer measurement time for the same noise suppression.
 
-
+Trade-off: Higher FR → Longer measurement time, Shorter measurement time → Lower FR.
 \subsection*{Summary of Observations}
 The experiments confirm the core trade-off triangle:
+
+\begin{center}
+    \begin{tikzpicture}
+        % Draw the triangle
+        \draw[thick] (0,2) -- (-2,-1) -- (2,-1) -- cycle;
+        
+        % Add labels at each vertex
+        \node[above] at (0,2.2) {\textbf{MT}};
+        \node[below left] at (-2.2,-1.2) {\textbf{FR}};
+        \node[below right] at (2.2,-1.2) {\textbf{SNR}};
+        \node at (0,-1.5) {↑ SNR → ↓ FR};
+        \node at (-2.4,0.5) {↑ FR → ↑ MT};
+        \node at (2.6,0.5) {↑ SNR → ↑ MT};
+    \end{tikzpicture}
+\end{center}
+
+
 \begin{itemize}
     \item Increasing measurement time improves SNR at constant resolution.
     \item Increasing resolution reduces SNR if time is fixed.

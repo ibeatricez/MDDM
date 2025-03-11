@@ -1,4 +1,4 @@
-% Tradeoff in FRF Measurement - Final Optimized Version
+% Tradeoff in FRF Measurement - Fixed Leakage
 clc; clear; close all;
 
 % Global parameters
@@ -11,16 +11,12 @@ T2 = 12;             % Extended measurement time
 N1 = fs * T1;        % 6 seconds worth of samples
 N2 = fs * T2;        % 12 seconds worth of samples
 
-% Select frequencies that fit exactly in FFT bins and within [5,10] Hz
-df = fs / N1;  % Frequency resolution
-frequencies1 = linspace(5, 10, 30); % 30 frequencies in range [5,10] Hz
-frequencies2 = linspace(5, 10, 60); % 60 frequencies in range [5,10] Hz
 
-% Display frequencies to confirm range
-disp('Frequencies for 30 lines:');
-disp(frequencies1);
-disp('Frequencies for 60 lines:');
-disp(frequencies2);
+% Select frequencies that fit exactly in window
+k1 = 1:30;  
+frequencies1 = k1 / T1;  % Frequencies matching integer cycles
+k2 = 1:60;
+frequencies2 = k2 / T1;  % Higher resolution, same time
 
 % Generate multisines
 x1 = generate_multisine(N1, frequencies1, fs, RMS_des);
@@ -44,41 +40,29 @@ titles = {
 figure;
 for i = 1:6
     subplot(6, 2, 2*i-1);
-    plot((0:length(multisines{i})-1)/fs, multisines{i}, 'k'); % Black for better contrast
+    plot((0:length(multisines{i})-1)/fs, multisines{i});
     xlabel('Time (s)');
     ylabel('Amplitude');
     title(titles{i});
-    grid on;
 
-    % Apply Hann window to reduce leakage (only if necessary)
+    % Apply Hann window to reduce leakage
     window = hann(length(multisines{i}))';
     x_windowed = multisines{i} .* window;
+    
 
     % FFT Calculation
-    X = fft(x_windowed);
-    X_mag = abs(X(1:N1/2+1));  % Keep only positive half of spectrum
-    f = (0:N1/2) * (fs/N1);    % Positive frequency axis
+    X = fftshift(x_windowed);
+    f = (0:length(X)-1) * (fs/length(X));
 
     % Convert to dB scale
-    X_dB = 20 * log10(X_mag + 1e-16); 
+    X_dB = 20 * log10(abs(X) + 1e-16); 
 
-    % Filter out noise floor for clean plot
-    threshold_dB = -120;  % Only show components above -120 dB
-    valid_indices = X_dB > threshold_dB;
-
-    % Reduce plotted points for clarity
-    plot_step = 5; % Display every 5th frequency bin
-
-    % Plot log-magnitude spectrum with fewer markers
+    % Plot log-magnitude spectrum
     subplot(6, 2, 2*i);
-    stem(f(valid_indices(1:plot_step:end)), X_dB(valid_indices(1:plot_step:end)), ...
-         'r', 'filled', 'MarkerSize', 4); % Red markers for better visibility
+    stem(f, X_dB, 'b', 'filled');
     xlabel('Frequency (Hz)');
     ylabel('|X(f)| (dB)');
     title([titles{i}, ' - FFT']);
-    grid minor;
-    ylim([-120, 10]);  % Keeps all FFT plots on the same scale
-    xlim([0, 15]);     % Focus only on the relevant frequency range
 end
 
 disp('All multisines generated and plotted successfully.');

@@ -1,37 +1,29 @@
-% Tradeoff in FRF Measurement
-% Objective: Illustrate trade-offs between frequency resolution, measurement time, and SNR
+% Tradeoff in FRF Measurement - Fixed Leakage
 clc; clear; close all;
 
 % Global parameters
 fs = 100;            % Sampling frequency (Hz)
 RMS_des = 1;         % Desired RMS value
-f_start = 5;         % Start frequency (Hz)
-f_end = 10;          % End frequency (Hz)
+T1 = 6;              % Measurement time in seconds
+T2 = 12;             % Extended measurement time
 
-% --- Tradeoff 1: Fixed Frequency Resolution ---
-% Multisine 1 - 30 lines, 6 seconds
-N1 = fs * 6;                          % 6 seconds worth of samples
-frequencies1 = linspace(f_start, f_end, 30);
+% Ensure integer number of periods
+N1 = fs * T1;        % 6 seconds worth of samples
+N2 = fs * T2;        % 12 seconds worth of samples
+
+% Select frequencies that fit exactly in window
+k1 = 1:30;  
+frequencies1 = k1 / T1;  % Frequencies matching integer cycles
+k2 = 1:60;
+frequencies2 = k2 / T1;  % Higher resolution, same time
+
+% Generate multisines
 x1 = generate_multisine(N1, frequencies1, fs, RMS_des);
-
-% Multisine 2 - 30 lines, 12 seconds (better SNR)
-N2 = fs * 12;                         % 12 seconds worth of samples
 x2 = generate_multisine(N2, frequencies1, fs, RMS_des);
-
-% --- Tradeoff 2: Fixed Measurement Time ---
-% Multisine 3 - 30 lines, 6 seconds
-x3 = x1;  % Same as Multisine 1 (fixed time = same N)
-
-% Multisine 4 - 60 lines, 6 seconds (worse SNR, finer resolution)
-frequencies4 = linspace(f_start, f_end, 60);
-x4 = generate_multisine(N1, frequencies4, fs, RMS_des);
-
-% --- Tradeoff 3: Fixed SNR ---
-% Multisine 5 - 30 lines, 6 seconds, fixed SNR
-x5 = x1;  % Same as Multisine 1 (same power spread over 30 lines)
-
-% Multisine 6 - 60 lines, 12 seconds (more frequencies, but maintain SNR by longer time)
-x6 = generate_multisine(N2, frequencies4, fs, RMS_des);
+x3 = x1;  % Fixed Time, same as x1
+x4 = generate_multisine(N1, frequencies2, fs, RMS_des);
+x5 = x1;  % Fixed SNR, same as x1
+x6 = generate_multisine(N2, frequencies2, fs, RMS_des);
 
 % ---- Plot all results ----
 multisines = {x1, x2, x3, x4, x5, x6};
@@ -52,12 +44,23 @@ for i = 1:6
     ylabel('Amplitude');
     title(titles{i});
 
-    subplot(6, 2, 2*i);
-    X = fft(multisines{i});
+    % Apply Hann window to reduce leakage
+    window = hann(length(multisines{i}))';
+    x_windowed = multisines{i} .* window;
+
+    % FFT Calculation
+    X = fftshift(x_windowed);
     f = (0:length(X)-1) * (fs/length(X));
-    stem(f, abs(X), 'b', 'filled');
+
+    % Convert to dB scale
+    X_dB = 20 * log10(abs(X) + 1e-16); 
+
+    % Plot log-magnitude spectrum
+    subplot(6, 2, 2*i);
+    stem(f, X_dB, 'b', 'filled');
     xlabel('Frequency (Hz)');
-    ylabel('|X(f)|');
+    ylabel('|X(f)| (dB)');
+    title([titles{i}, ' - FFT']);
 end
 
 disp('All multisines generated and plotted successfully.');

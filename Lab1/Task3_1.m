@@ -3,8 +3,8 @@
 % Task 1.3.1 - Generate a Random Phase Multisine (Time Domain)
 
 % Parameters
-N = 1000;            % Number of samples
-K = 10;               % Number of excited frequencies
+N = 4096;            % Number of samples
+K = 100;               % Number of excited frequencies
 fs = 100;             % Sampling frequency (Hz)
 Ts = 1/fs;            % Sampling time (s)
 
